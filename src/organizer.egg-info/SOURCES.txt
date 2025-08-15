@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/organizer/__init__.py
+src/organizer/cli.py
+src/organizer/core.py
+src/organizer.egg-info/PKG-INFO
+src/organizer.egg-info/SOURCES.txt
+src/organizer.egg-info/dependency_links.txt
+src/organizer.egg-info/entry_points.txt
+src/organizer.egg-info/top_level.txt
