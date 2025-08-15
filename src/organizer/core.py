@@ -7,10 +7,10 @@ from typing import List, Tuple, Dict
 # Main map: category -> list of extensions (lowercase)
 CATEGORY_MAP: Dict[str, List[str]] = {
     "Documents": [".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".md"],
-    "Imagens":    [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"],
+    "Images":    [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"],
     "Audio":      [".mp3", ".wav", ".flac", ".m4a"],
     "Videos":     [".mp4", ".mov", ".mkv", ".avi"],
-    "Compressed": [".zip", ".rar", ".7z", ".tar", ".gz"],
+    "Archives": [".zip", ".rar", ".7z", ".tar", ".gz"],
     "Installers": [".exe", ".msi", ".dmg", ".pkg"],
     "Code":     [".py", ".js", ".ts", ".html", ".css", ".json", ".yaml", ".yml", ".xml"],
 }
@@ -40,7 +40,7 @@ def decide_destination(file: Path, dst_root: Path) -> Path:
     Returns the suggested full path (folder + file name).
     """
     ext = file.suffix.lower()
-    category = EXT_TO_CATEGORY.get(ext, "Outros")
+    category = EXT_TO_CATEGORY.get(ext, "Others")
     dest_dir = dst_root / category
     return dest_dir / file.name
 
