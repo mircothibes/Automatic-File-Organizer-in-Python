@@ -1,3 +1,35 @@
+"""
+Core logic for the File Organizer project.
+
+This module contains the primary functionality for categorizing and moving files
+based on their extensions. It defines mappings between file extensions and categories,
+and provides utility functions for discovering files, deciding destinations,
+resolving conflicts, planning moves, executing them, and generating summaries.
+
+Features:
+---------
+- CATEGORY_MAP: Main dictionary mapping categories to a list of extensions.
+- EXT_TO_CATEGORY: Reverse lookup dictionary mapping extension -> category.
+- discover_files(): Lists files in a given directory.
+- decide_destination(): Determines the destination subfolder based on file type.
+- ensure_unique_path(): Prevents overwriting by generating unique file names.
+- plan_moves(): Builds the complete plan of file moves.
+- execute_moves(): Executes the plan, moving files to their destinations.
+- summarize(): Produces a summary of moved files by category.
+
+Example usage:
+--------------
+    from pathlib import Path
+    from organizer.core import discover_files, plan_moves, execute_moves, summarize
+
+    src = Path("~/Downloads").expanduser()
+    dst = Path("~/Downloads/Organized").expanduser()
+
+    files = discover_files(src)
+    plan = plan_moves(files, dst)
+    execute_moves(plan)
+    print(summarize(plan))
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,8 +57,17 @@ EXT_TO_CATEGORY: Dict[str, str] = {
 
 def discover_files(src: Path) -> List[Path]:
     """
-    Returns only files (non-recursive) in `src`,
-    sorted by name for predictable output.
+    Discover all files in the given source directory (non-recursive).
+
+    Args:
+        src (Path): The source directory.
+
+    Returns:
+        List[Path]: Sorted list of files (excluding subdirectories).
+
+    Notes:
+        - Sorting is case-insensitive for predictable output.
+        - Does not include files from nested subdirectories.
     """
     files = [p for p in src.iterdir() if p.is_file()]
     files.sort(key=lambda p: p.name.lower())
@@ -35,9 +76,18 @@ def discover_files(src: Path) -> List[Path]:
 
 def decide_destination(file: Path, dst_root: Path) -> Path:
     """
-    Determines the destination folder based on the file extension.
-    If the extension is not mapped, it uses the 'Other' category.
-    Returns the suggested full path (folder + file name).
+    Determine the destination path for a file based on its extension.
+
+    Args:
+        file (Path): The file to be organized.
+        dst_root (Path): The root destination directory.
+
+    Returns:
+        Path: The full destination path (category folder + filename).
+
+    Notes:
+        - If the file extension is not in CATEGORY_MAP, it is placed in "Others".
+        - Destination directories are not created here (handled later).
     """
     ext = file.suffix.lower()
     category = EXT_TO_CATEGORY.get(ext, "Others")
@@ -47,8 +97,19 @@ def decide_destination(file: Path, dst_root: Path) -> Path:
 
 def ensure_unique_path(target: Path) -> Path:
     """
-    Ensures that `target` will not be overwritten.
-    If it already exists, generates 'name-1.ext', 'name-2.ext', ... until a free one is found.
+    Ensure the target path is unique, avoiding overwriting existing files.
+
+    Args:
+        target (Path): Proposed destination file path.
+
+    Returns:
+        Path: A unique file path. If the original exists, suffixes like
+              '-1', '-2', ... are appended before the extension.
+
+    Example:
+        file.pdf  -> file.pdf (if available)
+                  -> file-1.pdf (if file.pdf exists)
+                  -> file-2.pdf (if file.pdf and file-1.pdf exist)
     """
     if not target.exists():
         return target
@@ -64,8 +125,18 @@ def ensure_unique_path(target: Path) -> Path:
 
 def plan_moves(files: List[Path], dst_root: Path) -> List[Tuple[Path, Path]]:
     """
-    Generates the complete movement plan (origin, final_destination).
-    The final destination already considers name conflicts (unique path).
+    Build a list of planned moves (source -> destination).
+
+    Args:
+        files (List[Path]): List of files to organize.
+        dst_root (Path): Root destination directory.
+
+    Returns:
+        List[Tuple[Path, Path]]: List of pairs (source_file, final_destination).
+
+    Notes:
+        - Uses `decide_destination` to select a category folder.
+        - Uses `ensure_unique_path` to resolve filename conflicts.
     """
     plan: List[Tuple[Path, Path]] = []
     for f in files:
@@ -77,7 +148,14 @@ def plan_moves(files: List[Path], dst_root: Path) -> List[Tuple[Path, Path]]:
 
 def execute_moves(plan: List[Tuple[Path, Path]]) -> None:
     """
-    Executes planned movements. Creates destination folders when necessary.
+    Execute all file moves from the provided plan.
+
+    Args:
+        plan (List[Tuple[Path, Path]]): List of (source, destination) pairs.
+
+    Notes:
+        - Creates destination directories if they do not exist.
+        - Uses `shutil.move` for cross-platform compatibility.
     """
     for src, dst in plan:
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -87,8 +165,20 @@ def execute_moves(plan: List[Tuple[Path, Path]]) -> None:
 
 def summarize(plan: List[Tuple[Path, Path]]) -> Dict[str, int]:
     """
-    Returns a summary by category (destination subfolder name).
-    Ex.: {"Images": 5, "Documents": 3, "Others": 2}
+    Summarize the results of a move plan by category.
+
+    Args:
+        plan (List[Tuple[Path, Path]]): List of executed or planned moves.
+
+    Returns:
+        Dict[str, int]: A dictionary with category names as keys
+                        and counts of files as values.
+
+    Example:
+        {"Documents": 3, "Images": 5, "Others": 2}
+
+    Notes:
+        - The summary is sorted alphabetically by category name.
     """
     summary: Dict[str, int] = {}
     for _, dst in plan:
