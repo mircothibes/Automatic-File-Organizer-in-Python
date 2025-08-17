@@ -1,3 +1,32 @@
+"""
+Command-Line Interface (CLI) for the File Organizer project.
+
+This module provides a command-line entry point to organize files from a source
+directory into categorized subfolders within a destination directory.
+
+Features:
+---------
+- Parses user-provided arguments such as:
+  * --src: source folder containing files to organize.
+  * --dst: destination folder where organized files will be placed.
+  * --dry-run: simulate the organization process without moving files.
+- Validates the source and destination directories.
+- Builds a plan of file moves using core logic (`plan_moves`).
+- Executes moves (or prints the plan if dry-run mode is enabled).
+- Prints a summary report of the categorized files.
+
+Usage example:
+--------------
+Dry-run simulation:
+    python -m organizer.cli --src ~/Downloads --dst ~/Organized --dry-run
+
+Actual execution:
+    python -m organizer.cli --src ~/Downloads --dst ~/Organized
+
+This CLI acts as the primary interface for end-users, wrapping the internal
+core functions into a simple and user-friendly command-line tool.
+"""
+
 import argparse
 from pathlib import Path
 import sys
@@ -6,7 +35,15 @@ from .core import discover_files, plan_moves, execute_moves, summarize
 
 def build_parser():
     """
-    Creates and returns the configured ArgumentParser for the CLI 
+    Build and configure the command-line argument parser.
+
+    Returns:
+        argparse.ArgumentParser: A parser with configured options:
+            - --src (str): Source directory containing files to organize.
+            - --dst (str): Destination directory for organized files.
+                           Defaults to '~/Downloads/Organized'.
+            - --dry-run (flag): If set, only simulates the organization
+                                without moving any files.
     """
     parser = argparse.ArgumentParser(
         prog = "organizer",
@@ -32,6 +69,22 @@ def build_parser():
 
 
 def main():
+    """
+    Main entry point for the CLI.
+
+    Steps performed:
+    ----------------
+    1. Parse command-line arguments.
+    2. Resolve and validate source and destination directories.
+    3. Build a list of files to move using `discover_files` and `plan_moves`.
+    4. If dry-run mode is enabled:
+       - Print the planned moves and a summary report.
+    5. Otherwise:
+       - Execute file moves with `execute_moves`.
+       - Print a summary report of moved files.
+
+    Exits with status code 1 if the source directory is invalid.
+    """
     parser = build_parser()
     args = parser.parse_args()
 
