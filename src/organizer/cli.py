@@ -30,7 +30,7 @@ core functions into a simple and user-friendly command-line tool.
 import argparse
 from pathlib import Path
 import sys
-from .core import discover_files, plan_moves, execute_moves, summarize
+from organizer import discover_files, plan_moves, execute_moves, summarize
 
 
 def build_parser():

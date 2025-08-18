@@ -43,7 +43,7 @@ Key points:
 """
 
 from pathlib import Path
-from organizer.core import (
+from organizer import (
     CATEGORY_MAP,
     EXT_TO_CATEGORY,
     discover_files,
