@@ -91,7 +91,7 @@ def main() -> None:
             set_status("Error")
 
     # --- UI ------------------------------------------------------------------
-    root = tk.Tk()
+    
     root.title("Organizer — Tkinter GUI")
     root.geometry("720x520")
 
