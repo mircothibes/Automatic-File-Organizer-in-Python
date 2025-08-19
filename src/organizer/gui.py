@@ -7,6 +7,9 @@ from organizer import discover_files, plan_moves, execute_moves, summarize
 
 
 def main() -> None:
+    root = tk.Tk()
+    root.title("Organizer — Tkinter GUI")
+    root.geometry("720x520")
     # --- State variables -----------------------------------------------------
     src_var = tk.StringVar(value=str(Path.home() / "Downloads"))
     dst_var = tk.StringVar(value=str(Path.home() / "Downloads" / "Organized"))
