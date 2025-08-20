@@ -1,51 +1,17 @@
 """
 Graphical User Interface (GUI) for the File Organizer.
 
-This module provides a **Tkinter-based front-end** for the File Organizer package.  
-It allows users to interact with the organizer visually, without requiring command-line
-knowledge. The GUI orchestrates user input, builds the movement plan, and executes file 
-organization using the core functions defined in :mod:`organizer.core`.
+This module provides a Tkinter-based front-end that orchestrates user input
+and delegates all organizing logic to the core package functions:
+`discover_files`, `plan_moves`, `execute_moves`, and `summarize`.
 
-Main Features
--------------
-- Source folder selection (read-only field + Browse button).
-- Destination folder selection (read-only field + Browse button).
-- Optional "dry-run" mode (preview of planned file moves, without applying changes).
-- Execution of the organization plan, moving files into categorized subfolders.
-- Visual feedback with a summary of moved files, grouped by category.
+User flow:
+1) Select Source and Destination folders (via read-only entries + Browse buttons).
+2) Optionally enable "Dry-run" to preview the plan without moving files.
+3) Click "Run" to list the plan; if not in Dry-run mode, confirm and execute.
+4) Review the live log and the category summary at the bottom.
 
-Technical Notes
----------------
-- Built with **Tkinter**, Python’s standard GUI toolkit.
-- Uses `StringVar` and `BooleanVar` variables bound to input widgets for state management.
-- Leverages the following core functions:
-  - :func:`discover_files` – lists candidate files from the source directory.
-  - :func:`plan_moves` – generates a move plan, including conflict resolution.
-  - :func:`execute_moves` – executes the planned file movements.
-  - :func:`summarize` – produces a category-based summary after execution.
-
-How It Works
-------------
-1. The user selects a **source** folder and a **destination** folder.
-2. The program scans the source for files, then computes their destinations based on extension.
-3. If "dry-run" is checked, the planned moves and summary are displayed without touching the files.
-4. Otherwise, the files are physically moved to categorized subfolders, and a summary is displayed.
-
-Example Usage
--------------
-Run the GUI with:
-
-    $ python -m organizer.gui
-
-Typical user workflow:
-1. Launch the program.
-2. Browse for the source and destination folders.
-3. (Optional) Enable "dry-run" to preview the plan.
-4. Click **Organize** to execute.
-5. Review the summary of organized files.
-
-This front-end complements the command-line interface (:mod:`organizer.cli`) by providing
-a more intuitive experience for end-users.
+The GUI does not re-implement business logic; it only coordinates I/O and UX.
 """
 
 
@@ -56,40 +22,128 @@ from organizer import discover_files, plan_moves, execute_moves, summarize
 
 
 def main() -> None:
+    """
+    Launch the Tkinter GUI for the File Organizer.
+
+    Responsibilities
+    ----------------
+    - Create the root window and bind Tkinter variables to the widgets.
+    - Wire UI event handlers (browse source/destination, run action).
+    - Provide a scrollable output area for the live plan/log.
+    - Display a summary of files grouped by category.
+    - Coordinate Dry-run vs. actual execution (with confirmation).
+
+    Notes
+    -----
+    - All heavy lifting (scan, planning, moving, summarizing) is delegated to
+      the core functions imported from the `organizer` package.
+    - The function blocks UI controls during execution only minimally; for
+      very large folders, consider using threading in future iterations.
+    """
+    # Root window
     root = tk.Tk()
     root.title("Organizer — Tkinter GUI")
     root.geometry("720x520")
     # --- State variables -----------------------------------------------------
+    # Tk variables must be created after root; they hold user-controlled state.
     src_var = tk.StringVar(value=str(Path.home() / "Downloads"))
     dst_var = tk.StringVar(value=str(Path.home() / "Downloads" / "Organized"))
     dry_var = tk.BooleanVar(value=True)
 
     # --- Handlers ------------------------------------------------------------
     def on_browse_src() -> None:
+        """
+        Open a directory-chooser dialog and update the Source path field.
+
+        Behavior
+        --------
+        - Opens a system dialog (`filedialog.askdirectory`).
+        - If the user chooses a folder, updates `src_var` accordingly.
+        """
         path = filedialog.askdirectory()
         if path:
             src_var.set(path)
 
     def on_browse_dst() -> None:
+        """
+        Open a directory-chooser dialog and update the Destination path field.
+        Behavior
+        --------
+        - Opens a system dialog (`filedialog.askdirectory`).
+        - If the user chooses a folder, updates `dst_var` accordingly.
+        """
         path = filedialog.askdirectory()
         if path:
             dst_var.set(path)
 
     def clear_output() -> None:
+        """
+         Clear the log/output text area.
+
+        Notes
+        -----
+        - Temporarily switches the text widget to 'normal' state to edit,
+          then back to 'disabled' to avoid user typing.
+        """
         txt_output.configure(state="normal")
         txt_output.delete("1.0", "end")
         txt_output.configure(state="disabled")
 
     def append_output(line: str) -> None:
+        """
+        Append a single line to the log/output text area.
+
+        Parameters
+        ----------
+        line : str
+            The message to append to the log window.
+
+        Notes
+        -----
+        - Auto-scrolls to the end to keep the latest messages visible.
+        - Keeps the widget read-only for user interactions.
+        """
         txt_output.configure(state="normal")
         txt_output.insert("end", line + "\n")
         txt_output.see("end")
         txt_output.configure(state="disabled")
 
     def set_status(text: str) -> None:
+        """
+        Update the status bar text at the bottom of the window.
+
+        Parameters
+        ----------
+        text : str
+            Human-readable status message (e.g., 'Scanning...', 'Done').
+        """
         lbl_status.configure(text=text)
 
     def on_run() -> None:
+        """
+         Execute the organize action: plan and optionally move files.
+
+        Flow
+        ----
+        1) Clears previous output and shows "Scanning..." in the status bar.
+        2) Validates the source folder and ensures the destination exists.
+        3) Calls `discover_files` and `plan_moves` to build the plan.
+        4) Prints the full plan (source -> destination [Category]) to the log.
+        5) Shows a summary (category -> count) beneath the log.
+        6) If Dry-run is enabled, stops here with "Dry-run complete".
+        7) Otherwise, asks for user confirmation and calls `execute_moves`.
+        8) On success, reports completion via status bar and message box.
+
+        Error Handling
+        --------------
+        - Displays a message box for invalid source directories or unexpected
+          exceptions, and sets the status to "Error".
+
+        Notes
+        -----
+        - This handler intentionally keeps the UI logic separate from the
+          underlying file operations implemented in the core module.
+        """
         try:
             clear_output()
             set_status("Scanning...")
