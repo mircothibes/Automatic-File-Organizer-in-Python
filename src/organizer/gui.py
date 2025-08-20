@@ -1,4 +1,53 @@
-"""Tkinter front-end for the File Organizer; orchestrates user input and calls core functions."""
+"""
+Graphical User Interface (GUI) for the File Organizer.
+
+This module provides a **Tkinter-based front-end** for the File Organizer package.  
+It allows users to interact with the organizer visually, without requiring command-line
+knowledge. The GUI orchestrates user input, builds the movement plan, and executes file 
+organization using the core functions defined in :mod:`organizer.core`.
+
+Main Features
+-------------
+- Source folder selection (read-only field + Browse button).
+- Destination folder selection (read-only field + Browse button).
+- Optional "dry-run" mode (preview of planned file moves, without applying changes).
+- Execution of the organization plan, moving files into categorized subfolders.
+- Visual feedback with a summary of moved files, grouped by category.
+
+Technical Notes
+---------------
+- Built with **Tkinter**, Python’s standard GUI toolkit.
+- Uses `StringVar` and `BooleanVar` variables bound to input widgets for state management.
+- Leverages the following core functions:
+  - :func:`discover_files` – lists candidate files from the source directory.
+  - :func:`plan_moves` – generates a move plan, including conflict resolution.
+  - :func:`execute_moves` – executes the planned file movements.
+  - :func:`summarize` – produces a category-based summary after execution.
+
+How It Works
+------------
+1. The user selects a **source** folder and a **destination** folder.
+2. The program scans the source for files, then computes their destinations based on extension.
+3. If "dry-run" is checked, the planned moves and summary are displayed without touching the files.
+4. Otherwise, the files are physically moved to categorized subfolders, and a summary is displayed.
+
+Example Usage
+-------------
+Run the GUI with:
+
+    $ python -m organizer.gui
+
+Typical user workflow:
+1. Launch the program.
+2. Browse for the source and destination folders.
+3. (Optional) Enable "dry-run" to preview the plan.
+4. Click **Organize** to execute.
+5. Review the summary of organized files.
+
+This front-end complements the command-line interface (:mod:`organizer.cli`) by providing
+a more intuitive experience for end-users.
+"""
+
 
 from pathlib import Path
 import tkinter as tk
