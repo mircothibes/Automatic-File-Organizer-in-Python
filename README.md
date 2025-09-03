@@ -26,16 +26,9 @@ Here’s how the Tkinter GUI looks:
 ## 🔧 Installation
 
 Create and activate a virtual environment:
-```bash
+# bash
 python -m venv .venv
-# Windows
 .\.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
-
-Clone this repository:
-git clone https://github.com/mircothibes/file-organizer.git
-cd file-organizer
 
 ---
 
@@ -46,8 +39,6 @@ python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized --dry-run
 Real execution
 python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized
 
----
-
 Options
 | Flag        | Description                                   | Default                 |
 | ----------- | --------------------------------------------- | ----------------------- |
@@ -55,6 +46,7 @@ Options
 | `--dst`     | Destination folder                            | `~/Downloads/Organized` |
 | `--dry-run` | Simulate the process without moving any files | `False`                 |
 
+---
 
 📂 Categories and Extensions
 | Category   | Extensions                                                             |
