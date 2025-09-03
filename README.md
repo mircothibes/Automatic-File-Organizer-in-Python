@@ -9,6 +9,8 @@ Here’s how the Tkinter GUI looks:
 
 ![Organizer GUI](docs/screenshot.png)
 
+---
+
 ## ✨ Features (MVP)
 - **Fixed mapping** of extensions → categories (Documents, Images, Audio, etc.)
 - **Dry-run** (`--dry-run`): simulates the process without moving any files
@@ -26,8 +28,9 @@ Here’s how the Tkinter GUI looks:
 ## 🔧 Installation
 
 Create and activate a virtual environment:
-# bash
+
 python -m venv .venv
+
 .\.venv\Scripts\activate
 
 ---
