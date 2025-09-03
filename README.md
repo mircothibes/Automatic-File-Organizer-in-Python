@@ -3,6 +3,8 @@
 A simple **Python** tool to organize files by extension, moving them into categorized subfolders.  
 Perfect for keeping folders like `Downloads` clean and tidy automatically.
 
+---
+
 ## Screenshot
 
 Here’s how the Tkinter GUI looks:
