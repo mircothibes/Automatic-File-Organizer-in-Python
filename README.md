@@ -37,6 +37,8 @@ Clone this repository:
 git clone https://github.com/mircothibes/file-organizer.git
 cd file-organizer
 
+---
+
 🚀 Usage
 Simulation mode (dry-run)
 python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized --dry-run
@@ -44,6 +46,7 @@ python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized --dry-run
 Real execution
 python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized
 
+---
 
 Options
 | Flag        | Description                                   | Default                 |
@@ -65,6 +68,15 @@ Options
 | Code       | `.py`, `.js`, `.ts`, `.html`, `.css`, `.json`, `.yaml`, `.yml`, `.xml` |
 | Others     | Any extension not mapped above                                         |
 
+---
 
 📜 License
 Distributed under the MIT License. See LICENSE for more information.
+
+---
+
+## 👨‍💻 Author
+
+Developed by Marcos Vinicius Thibes Kemer
+
+---
