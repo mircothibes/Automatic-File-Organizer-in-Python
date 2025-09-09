@@ -27,16 +27,6 @@ Here’s how the Tkinter GUI looks:
 
 ---
 
-## 🔧 Installation
-
-Create and activate a virtual environment:
-
-python -m venv .venv
-
-.\.venv\Scripts\activate
-
----
-
 🚀 Usage
 Simulation mode (dry-run)
 python -m organizer.cli --src ~/Downloads --dst ~/Downloads/Organized --dry-run
